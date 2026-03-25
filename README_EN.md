@@ -16,6 +16,7 @@ Users can send messages to you through your bot, and you can reply directly to t
 - 🚀 **Lightweight Deployment** - Complete setup within minutes
 - 💰 **Zero Running Cost** - Operates within Cloudflare's free plan limits
 - 🔒 **Secure and Reliable** - Uses official Telegram API and secure tokens
+- 🤖 **Bot Verification** - Cloudflare Turnstile integration to filter bot users
 - 🔌 **Multiple Bot Support** - Register multiple private chat bots with a single deployment
 - 🛠️ **Multiple Deployment Options** - GitHub one-click deploy, Vercel one-click deploy, Wrangler CLI, and Dashboard deployment
 
@@ -65,7 +66,12 @@ This is the simplest deployment method, requiring no local development environme
    - Click on **Environment Variables**
    - Add `PREFIX` (e.g., `public`)
    - Add `SECRET_TOKEN` (must contain uppercase and lowercase letters and numbers, at least 16 characters long), and mark it as **Encrypted**
-9. Click **Save and Deploy** to complete the deployment
+   - Add `TURNSTILE_SITE_KEY` (Turnstile frontend site key), and mark it as **Encrypted**
+   - Add `TURNSTILE_SECRET_KEY` (Turnstile backend secret key), and mark it as **Encrypted**
+9. Configure KV Namespace:
+   - In Workers & Pages -> Your Project -> Settings -> Variables, find **KV Namespace Bindings**
+   - Click **Add binding**, set Variable name to `VERIFIED_USERS`, select or create a KV namespace
+10. Click **Save and Deploy** to complete the deployment
 
 The advantage of this method is that when you update your GitHub repository, Cloudflare will automatically redeploy your Worker.
 
@@ -103,10 +109,17 @@ If you're comfortable with command-line tools, you can use the Wrangler CLI for 
    ```bash
    npx wrangler deploy
    ```
-5. Set your Secret Token:
+5. Set your secret tokens:
    ```bash
    npx wrangler secret put SECRET_TOKEN
+   npx wrangler secret put TURNSTILE_SITE_KEY
+   npx wrangler secret put TURNSTILE_SECRET_KEY
    ```
+6. Create and bind KV namespace:
+   ```bash
+   wrangler kv:namespace create VERIFIED_USERS
+   ```
+   Fill the returned `id` into the `kv_namespaces` configuration in `wrangler.toml`
 
 #### Method 4: Manual Deployment via Cloudflare Dashboard
 
@@ -203,6 +216,16 @@ https://open-wegram-bot.username.workers.dev/public/install/123456789/000000000:
 > One Worker instance can register multiple different Bots! Just repeat the above registration steps using different Bot API Tokens.
 
 ## 📱 How to Use
+
+### First-Time Verification 🤖
+
+> [!NOTE]
+> With bot verification enabled, users will receive a verification link when sending their first message to the bot. They must complete verification before using the bot normally.
+
+When sending the first message to the bot, you will receive a verification link:
+1. Click the link to open the verification page
+2. Complete the Cloudflare Turnstile human verification
+3. After verification succeeds, return to Telegram to continue using the bot
 
 ### Receiving Messages 📩
 

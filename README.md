@@ -16,6 +16,7 @@
 - 🚀 **轻量级部署** - 几分钟内即可完成设置
 - 💰 **零成本运行** - 在 Cloudflare 免费计划范围内使用
 - 🔒 **安全可靠** - 使用 Telegram 官方 API 和安全令牌
+- 🤖 **人机验证** - 基于 Cloudflare Turnstile 过滤机器人用户
 - 🔌 **多机器人支持** - 一个部署可注册多个私聊机器人
 - 🛠️ **多种部署方式** - 支持 GitHub 一键部署、Vercel 一键部署、Wrangler CLI 和 Dashboard 部署
 
@@ -66,7 +67,12 @@
    - 点击 **Environment Variables**
    - 添加 `PREFIX`（例如：`public`）
    - 添加 `SECRET_TOKEN`（必须包含大小写字母和数字，长度至少16位），并标记为**加密**
-9. 点击 **Save and Deploy** 按钮完成部署
+   - 添加 `TURNSTILE_SITE_KEY`（Turnstile 前端站点密钥），并标记为**加密**
+   - 添加 `TURNSTILE_SECRET_KEY`（Turnstile 后端验证密钥），并标记为**加密**
+9. 配置 KV 命名空间：
+   - 在 Workers & Pages -> 您的项目 -> Settings -> Variables 中找到 **KV Namespace Bindings**
+   - 点击 **Add binding**，变量名称填写 `VERIFIED_USERS`，选择一个已创建的 KV namespace（或新建一个）
+10. 点击 **Save and Deploy** 按钮完成部署
 
 这种方式的优点是：当您更新 GitHub 仓库时，Cloudflare 会自动重新部署您的 Worker。
 
@@ -107,7 +113,14 @@ Vercel 部署的优点是简单快速，支持自动更新，并且默认提供 
 5. 设置您的安全令牌：
    ```bash
    npx wrangler secret put SECRET_TOKEN
+   npx wrangler secret put TURNSTILE_SITE_KEY
+   npx wrangler secret put TURNSTILE_SECRET_KEY
    ```
+6. 创建 KV 命名空间并绑定：
+   ```bash
+   wrangler kv:namespace create VERIFIED_USERS
+   ```
+   将返回的 `id` 填入 `wrangler.toml` 的 `kv_namespaces` 配置中
 
 #### 方法四：通过 Cloudflare Dashboard 手动部署
 
@@ -208,6 +221,16 @@ https://open-wegram-bot.username.workers.dev/public/install/123456789/000000000:
 > 一个 Worker 实例可以注册多个不同的 Bot！只需重复上述注册步骤，使用不同的 Bot API Token 即可。
 
 ## 📱 使用方法
+
+### 首次使用验证 🤖
+
+> [!NOTE]
+> 开启人机验证后，用户首次给 bot 发消息时会收到验证链接，完成验证后才能正常使用。
+
+首次给 bot 发送消息时，bot 会回复一条验证链接：
+1. 点击链接打开验证页面
+2. 完成 Cloudflare Turnstile 人机验证
+3. 验证成功后，返回 Telegram 继续使用 bot
 
 ### 接收消息 📩
 
