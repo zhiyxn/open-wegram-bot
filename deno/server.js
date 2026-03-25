@@ -19,7 +19,14 @@ Deno.serve(async (req) => {
         secretToken: Deno.env.get("SECRET_TOKEN") || ""
     };
 
-    const response = await handleRequest(request, config);
+    const env = {
+        PREFIX: Deno.env.get("PREFIX"),
+        SECRET_TOKEN: Deno.env.get("SECRET_TOKEN"),
+        TURNSTILE_SITE_KEY: Deno.env.get("TURNSTILE_SITE_KEY"),
+        TURNSTILE_SECRET_KEY: Deno.env.get("TURNSTILE_SECRET_KEY")
+    };
+
+    const response = await handleRequest(request, env, config);
 
     const body = await response.text();
 

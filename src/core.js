@@ -264,11 +264,9 @@ export async function handleWebhook(request, env, ownerUid, botToken, secretToke
 
         // Check verification status for non-owner messages
         const senderUid = message.chat.id.toString();
-        console.log('senderUid:', senderUid);
         if (env.VERIFIED_USERS) {
             const verified = await env.VERIFIED_USERS.get(`verified:${senderUid}`);
-            console.log('verified value:', verified, 'key:', `verified:${senderUid}`);
-            if (!verified) {
+            if (verified !== '1') {
                 // Send verification prompt
                 const url = new URL(request.url);
                 const verifyLink = `${url.protocol}//${url.hostname}/${env.PREFIX || 'public'}/verify-page/${senderUid}`;
@@ -325,6 +323,7 @@ export async function handleRequest(request, env, config) {
     const UNINSTALL_PATTERN = new RegExp(`^/${prefix}/uninstall/([^/]+)$`);
     const WEBHOOK_PATTERN = new RegExp(`^/${prefix}/webhook/([^/]+)/([^/]+)$`);
     const VERIFY_PATTERN = new RegExp(`^/${prefix}/verify/([^/]+)$`);
+    const VERIFY_PAGE_PATTERN = new RegExp(`^/${prefix}/verify-page/([^/]+)$`);
 
     let match;
 
@@ -338,6 +337,10 @@ export async function handleRequest(request, env, config) {
 
     if (match = path.match(VERIFY_PATTERN)) {
         return handleVerify(request, env, match[1]);
+    }
+
+    if (match = path.match(VERIFY_PAGE_PATTERN)) {
+        return handleVerifyPage(match[1], env.TURNSTILE_SITE_KEY, prefix);
     }
 
     if (match = path.match(WEBHOOK_PATTERN)) {

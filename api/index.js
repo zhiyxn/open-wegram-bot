@@ -19,7 +19,14 @@ export default async function handler(req, res) {
         secretToken: process.env.SECRET_TOKEN || ''
     };
 
-    const response = await handleRequest(request, config);
+    const env = {
+        PREFIX: process.env.PREFIX,
+        SECRET_TOKEN: process.env.SECRET_TOKEN,
+        TURNSTILE_SITE_KEY: process.env.TURNSTILE_SITE_KEY,
+        TURNSTILE_SECRET_KEY: process.env.TURNSTILE_SECRET_KEY
+    };
+
+    const response = await handleRequest(request, env, config);
 
     const body = await response.text();
     const headers = {};
