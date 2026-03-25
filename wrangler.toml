@@ -5,7 +5,3 @@ keep_vars = true
 
 [placement]
 mode = "smart"
-
-[[kv_namespaces]]
-binding = "VERIFIED_USERS"
-id = "your-kv-namespace-id"
