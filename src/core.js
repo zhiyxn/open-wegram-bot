@@ -122,7 +122,7 @@ function getVerifyPageHtml(userId, siteKey, prefix) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>验证 - Open Wegram Bot</title>
+    <title>Sam Wegram Bot</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -160,7 +160,7 @@ function getVerifyPageHtml(userId, siteKey, prefix) {
 </head>
 <body>
     <div class="container">
-        <h1>Open Wegram Bot</h1>
+        <h1>Sam Wegram Bot</h1>
         <p id="description">请完成人机验证以继续使用 bot 服务</p>
         <div id="turnstile-widget"></div>
         <div id="status" class="status hidden"></div>
@@ -264,8 +264,10 @@ export async function handleWebhook(request, env, ownerUid, botToken, secretToke
 
         // Check verification status for non-owner messages
         const senderUid = message.chat.id.toString();
+        console.log('senderUid:', senderUid);
         if (env.VERIFIED_USERS) {
             const verified = await env.VERIFIED_USERS.get(`verified:${senderUid}`);
+            console.log('verified value:', verified, 'key:', `verified:${senderUid}`);
             if (!verified) {
                 // Send verification prompt
                 const url = new URL(request.url);
