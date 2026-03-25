@@ -1,0 +1,6 @@
+name = "open-wegram-bot"
+compatibility_date = "2023-05-18"
+
+[[kv_namespaces]]
+binding = "VERIFIED_USERS"
+id = "your-kv-namespace-id"
